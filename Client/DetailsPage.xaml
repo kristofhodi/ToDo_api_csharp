@@ -2,15 +2,39 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Client.DetailsPage"
-             Title="Details">
-    <VerticalStackLayout>
-        <Label
-            Text="Id"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-        <Label
-            x:Name="TodoId"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             Title="ToDo Részletek">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="16">
+
+            <Label x:Name="TodoId"
+                   Text="Id"
+                   FontAttributes="Bold"
+                   IsVisible="False" />
+
+            <Label Text="Cím:" />
+            <Entry x:Name="TitleEntry"
+                   Placeholder="Feladat címe" />
+
+            <Label Text="Leírás:" />
+            <Editor x:Name="DescriptionEditor"
+                    Placeholder="Feladat leírása"
+                    AutoSize="TextChanges" />
+
+            <Label Text="Határidő:" />
+            <DatePicker x:Name="DeadlinePicker" />
+
+            <HorizontalStackLayout>
+                <Label Text="Kész:" VerticalOptions="Center" />
+                <Switch x:Name="IsReadySwitch" />
+            </HorizontalStackLayout>
+
+            <Button Text="Mentés"
+                    Clicked="OnSaveClickedAsync"
+                    BackgroundColor="#512BD4"
+                    TextColor="White"
+                    CornerRadius="8" />
+
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>
