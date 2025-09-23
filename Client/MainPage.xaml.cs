@@ -50,6 +50,9 @@ public partial class MainPage : ContentPage
         await Shell.Current.GoToAsync("///AddToDoPage");
     }
 
+
+
+
     private async void OnDeleteClickedAsync(object sender, EventArgs e)
     {
         try
@@ -73,6 +76,6 @@ public partial class MainPage : ContentPage
     {
         var toDo = (ToDoDto)((Button)sender).BindingContext;
         var parameters = new Dictionary<string, object> { { "Id", toDo.Id } };
-        await Shell.Current.GoToAsync("///edit", parameters);
+        await Shell.Current.GoToAsync("details", parameters);
     }
 }

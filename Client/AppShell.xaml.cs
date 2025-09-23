@@ -5,7 +5,6 @@
         public AppShell()
         {
             InitializeComponent();
-            Routing.RegisterRoute(nameof(EditToDoPage), typeof(EditToDoPage));
         }
     }
 }

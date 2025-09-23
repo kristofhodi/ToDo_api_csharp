@@ -71,9 +71,6 @@
 	  <Compile Update="AddToDoPage.xaml.cs">
 	    <DependentUpon>AddToDoPage.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="EditToDoPage.xaml.cs">
-	    <DependentUpon>EditToDoPage.xaml</DependentUpon>
-	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -81,9 +78,6 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="AddToDoPage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="EditToDoPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>
