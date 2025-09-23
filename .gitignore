@@ -1,0 +1,12 @@
+﻿Client/bin
+Client/obj
+Common/bin
+Common/obj/Debug
+Common/obj
+TODO/bin
+TODO/obj
+.vs
+Data/bin
+Data/obj
+Services/obj
+Services/bin

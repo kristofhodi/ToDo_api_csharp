@@ -1,0 +1,32 @@
+@TODO_HostAddress = http://localhost:5278
+
+GET {{TODO_HostAddress}}/list
+Accept: application/json
+
+###
+POST {{TODO_HostAddress}}/create
+Content-Type: application/json
+Accept: application/json
+
+{
+  "title": "Teszt 3",
+  "description": "Ez egy teszt 3 tennivaló",
+  "deadline": "2025-11-01"
+}
+
+###
+PUT {{TODO_HostAddress}}/update
+Content-Type: application/json
+Accept: application/json
+
+{
+  "id": 2,
+  "title": "Teszt 2 (updated)",
+  "description": "Ez egy teszt 2 tennivaló (updated)",
+  "deadline": "2025-11-01",
+  "isReady": true
+}
+
+###
+DELETE {{TODO_HostAddress}}/delete/1
+Accept: application/json
