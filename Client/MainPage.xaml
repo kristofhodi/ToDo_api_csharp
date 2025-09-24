@@ -2,60 +2,85 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:Common;assembly=Common"
-             x:Class="Client.MainPage">
+             x:Class="Client.MainPage"
+             BackgroundColor="#f4f4f4">
 
     <ScrollView>
-        <VerticalStackLayout Padding="30,0" Spacing="25">
+        <VerticalStackLayout Padding="20" Spacing="20">
 
             <Button x:Name="AddNew"
-                    Text="Új létrehozás"
+                    Text="Új létrehozása"
                     Clicked="OnAddNewClickedAsync"
+                    BackgroundColor="#007AFF"
+                    TextColor="White"
+                    FontAttributes="Bold"
+                    CornerRadius="10"
+                    HeightRequest="50"
                     HorizontalOptions="Fill" />
 
-            <Grid Padding="10">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*" />
-                    <ColumnDefinition Width="2*" />
-                    <ColumnDefinition Width="3*" />
-                    <ColumnDefinition Width="1*" />
-                    <ColumnDefinition Width="1*" />
-                </Grid.ColumnDefinitions>
+            <Frame BackgroundColor="#e0e0e0"
+                   CornerRadius="10"
+                   Padding="10"
+                   HasShadow="False">
 
-                <Label Grid.Column="0" Text="Id" />
-                <Label Grid.Column="1" Text="Title" />
-                <Label Grid.Column="2" Text="Description" />
-            </Grid>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.8*" />
+                        <ColumnDefinition Width="1.5*" />
+                        <ColumnDefinition Width="2.5*" />
+                        <ColumnDefinition Width="1.5*" />
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="1*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Label Grid.Column="0" Text="Id" FontAttributes="Bold" />
+                    <Label Grid.Column="1" Text="Cím" FontAttributes="Bold" />
+                    <Label Grid.Column="2" Text="Leírás" FontAttributes="Bold" />
+                    <Label Grid.Column="3" Text="Státusz" FontAttributes="Bold" />
+                    <Label Grid.Column="4" Text=" " />
+                    <Label Grid.Column="5" Text=" " />
+                </Grid>
+            </Frame>
 
             <CollectionView x:Name="ToDosView">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="local:ToDoDto">
-                        <Grid Padding="10">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="1*" />
-                                <ColumnDefinition Width="2*" />
-                                <ColumnDefinition Width="3*" />
-                                <ColumnDefinition Width="0.5*" />
-                                <ColumnDefinition Width="0.5*" />
-                            </Grid.ColumnDefinitions>
+                        <Frame BackgroundColor="White"
+                               CornerRadius="10"
+                               Padding="10"
+                               Margin="0,5"
+                               HasShadow="True">
 
-                            <Label Grid.Column="0" Text="{Binding Id}" />
-                            <Label Grid.Column="1" Text="{Binding Title}" />
-                            <Label Grid.Column="2" Text="{Binding Description}" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="0.8*" />
+                                    <ColumnDefinition Width="1.5*" />
+                                    <ColumnDefinition Width="2.5*" />
+                                    <ColumnDefinition Width="1.5*" />
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="1*" />
+                                </Grid.ColumnDefinitions>
 
-                            <Button Grid.Column="3"
-                                    Text="Törlés"
-                                    Clicked="OnDeleteClickedAsync" />
+                                <Label Grid.Column="0" Text="{Binding Id}" VerticalOptions="Center" />
+                                <Label Grid.Column="1" Text="{Binding Title}" VerticalOptions="Center" />
+                                <Label Grid.Column="2" Text="{Binding Description}" VerticalOptions="Center" />
+                                <Label Grid.Column="3" Text="{Binding Status}" VerticalOptions="Center" />
 
-                            <Button Grid.Column="4"
-                                    Text="Módosítás"
-                                    Clicked="OnEditClickedAsync" />
-                        </Grid>
+                                <Button Grid.Column="4"
+                                        Text="Törlés"
+                                        BackgroundColor="#FF3B30"
+                                        TextColor="White"
+                                        CornerRadius="8"
+                                        Clicked="OnDeleteClickedAsync" />
+
+                                <Button Grid.Column="5"
+                                        Text="Szerkesztés"
+                                        BackgroundColor="#34C759"
+                                        TextColor="White"
+                                        CornerRadius="8"
+                                        Clicked="OnEditClickedAsync" />
+                            </Grid>
+                        </Frame>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>

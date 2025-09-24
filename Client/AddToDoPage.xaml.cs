@@ -48,6 +48,6 @@ public partial class AddToDoPage : ContentPage
 
     private async void OnCancelClickedAsync(object sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync(".."); // vissza a listához
+        await Shell.Current.GoToAsync("///MainPage"); // vissza a listához
     }
 }

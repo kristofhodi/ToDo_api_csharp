@@ -14,4 +14,5 @@ public record ToDoDto ()
     public DateTime Deadline { get; set; }
     public DateTime Created { get; set; }
     public bool IsReady { get; set; }
+    public string Status => IsReady ? "kész" : "nincs kész";
 }
