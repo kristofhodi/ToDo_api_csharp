@@ -17,6 +17,7 @@ public partial class MainPage : ContentPage
         InitializeComponent();
         this.httpClientFactory = httpClientFactory;
         ToDosView.ItemsSource = toDoCollection;
+        
     }
 
     protected override async void OnAppearing()
@@ -36,7 +37,10 @@ public partial class MainPage : ContentPage
             if (toDos != null)
             {
                 foreach (var toDo in toDos)
+                {
+                    
                     toDoCollection.Add(toDo);
+                }
             }
         }
         catch (Exception ex)
@@ -78,4 +82,28 @@ public partial class MainPage : ContentPage
         var parameters = new Dictionary<string, object> { { "Id", toDo.Id } };
         await Shell.Current.GoToAsync("details", parameters);
     }
+    private async void OnStatusChangedAsync(object sender, CheckedChangedEventArgs e)
+    {
+        try
+        {
+            var checkBox = (CheckBox)sender;
+            var toDo = (ToDoDto)checkBox.BindingContext;
+
+            toDo.IsReady = e.Value;
+
+            var httpClient = httpClientFactory.CreateClient();
+            var response = await httpClient.PutAsJsonAsync(ApiBaseUrl + $"update/{toDo.Id}", toDo);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                await DisplayAlert("Hiba", "Nem sikerült frissíteni a státuszt", "OK");
+                await LoadDataAsync(); 
+            }
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Hiba", ex.Message, "OK");
+        }
+    }
+
 }
