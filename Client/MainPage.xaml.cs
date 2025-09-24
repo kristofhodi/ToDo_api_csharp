@@ -1,6 +1,8 @@
 ﻿using Common;
 using System.Collections.ObjectModel;
 using System.Net.Http.Json;
+using System.Text;
+using System.Text.Json;
 
 namespace Client;
 
@@ -84,25 +86,80 @@ public partial class MainPage : ContentPage
     }
     private async void OnStatusChangedAsync(object sender, CheckedChangedEventArgs e)
     {
+        var checkBox = (CheckBox)sender;
+        var toDo = (ToDoDto)checkBox.BindingContext;
+        var originalValue = toDo.IsReady;
+
+        // lock UI amíg dolgozunk
+        checkBox.IsEnabled = false;
+
+        // optimisztikusan állítjuk be a modellben
+        toDo.IsReady = e.Value;
+
         try
         {
-            var checkBox = (CheckBox)sender;
-            var toDo = (ToDoDto)checkBox.BindingContext;
-
-            toDo.IsReady = e.Value;
-
             var httpClient = httpClientFactory.CreateClient();
-            var response = await httpClient.PutAsJsonAsync(ApiBaseUrl + $"update/{toDo.Id}", toDo);
+
+            // Próbáljuk elsőként a /update/{id} végpontot
+            var urlWithId = ApiBaseUrl + $"update/{toDo.Id}";
+            var response = await httpClient.PutAsJsonAsync(urlWithId, toDo);
 
             if (!response.IsSuccessStatusCode)
             {
-                await DisplayAlert("Hiba", "Nem sikerült frissíteni a státuszt", "OK");
-                await LoadDataAsync(); 
+                // ha nem sikerült, próbáljuk meg a /update végpontot (sok projekt ezt használja)
+                var urlNoId = ApiBaseUrl + "update";
+                var body = JsonSerializer.Serialize(toDo);
+                var altResponse = await httpClient.PutAsync(urlNoId, new StringContent(body, Encoding.UTF8, "application/json"));
+
+                if (altResponse.IsSuccessStatusCode)
+                {
+                    // siker — frissítjük listát (biztonság kedvéért)
+                    await LoadDataAsync();
+                }
+                else
+                {
+                    // mindkét próbálkozás hibára futott: olvassuk ki a szerverválaszt és mutassuk meg
+                    var primaryText = await SafeReadContentAsync(response);
+                    var altText = await SafeReadContentAsync(altResponse);
+
+                    await DisplayAlert("Hiba",
+                        $"Frissítés sikertelen.\nElső próbálkozás: {(int)response.StatusCode} {response.ReasonPhrase}\n{primaryText}\n\nMásodik próbálkozás: {(int)altResponse.StatusCode} {altResponse.ReasonPhrase}\n{altText}",
+                        "OK");
+
+                    // visszaállítjuk az eredeti értéket
+                    toDo.IsReady = originalValue;
+                    await LoadDataAsync();
+                }
+            }
+            else
+            {
+                // siker: opcionálisan újratöltjük a listát, hogy minden mező szinkron legyen
+                await LoadDataAsync();
             }
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Hiba", ex.Message, "OK");
+            // hálózati vagy egyéb kivétel
+            await DisplayAlert("Hiba", "Kivétel: " + ex.Message, "OK");
+
+            // visszaállítjuk az eredeti értéket
+            toDo.IsReady = originalValue;
+            await LoadDataAsync();
+        }
+        finally
+        {
+            checkBox.IsEnabled = true;
+        }
+
+        // segédfüggvény a tartalom kiolvasására (nem dob, ha üres)
+        static async Task<string> SafeReadContentAsync(HttpResponseMessage resp)
+        {
+            try
+            {
+                if (resp?.Content == null) return string.Empty;
+                return await resp.Content.ReadAsStringAsync();
+            }
+            catch { return string.Empty; }
         }
     }
 
