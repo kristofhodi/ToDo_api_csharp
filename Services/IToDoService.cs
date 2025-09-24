@@ -10,4 +10,5 @@ public interface IToDoService
     Task<List<ToDoDto>> ListAllAsync();
     Task DeleteAsync(int id);
     Task UpdateAsync(ToDo model);
+    Task<List<ToDoDto>> ListPendingAsync();
 }

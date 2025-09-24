@@ -75,4 +75,18 @@ public class ToDoService(ToDoDbContext db) : IToDoService
                         .SetProperty(e => e.Deadline, model.Deadline)
                         .SetProperty(e => e.IsReady, model.IsReady));
     }
+    public async Task<List<ToDoDto>> ListPendingAsync()
+    {
+        return await db.ToDos
+            .Where(e => !e.IsReady)
+            .Select(e => new ToDoDto
+            {
+                Id = e.Id,
+                Created = e.Created,
+                Deadline = e.Deadline,
+                Description = e.Description,
+                IsReady = e.IsReady,
+                Title = e.Title
+            }).ToListAsync();
+    }
 }

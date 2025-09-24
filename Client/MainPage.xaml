@@ -3,10 +3,16 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:Common;assembly=Common"
              x:Class="Client.MainPage"
+             x:Name="mainPage"
              BackgroundColor="#f4f4f4">
 
     <ScrollView>
+        
         <VerticalStackLayout Padding="20" Spacing="20">
+            <Button Text="{Binding Source={x:Reference mainPage}, Path=showPendingOnly, Converter={StaticResource BoolToTextConverter}, ConverterParameter='Csak a teendők|Összes'}"
+        Clicked="OnTogglePendingClickedAsync"
+        x:Name="TogglePendingButton"
+        Margin="10"/>
 
             <Button x:Name="AddNew"
                     Text="Új létrehozása"

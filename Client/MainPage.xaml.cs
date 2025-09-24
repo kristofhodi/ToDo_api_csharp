@@ -13,34 +13,22 @@ public partial class MainPage : ContentPage
 
     // Csak localhost
     private const string ApiBaseUrl = "https://localhost:7241/";
+    private bool showPendingOnly = false;
 
-    public MainPage(IHttpClientFactory httpClientFactory)
-    {
-        InitializeComponent();
-        this.httpClientFactory = httpClientFactory;
-        ToDosView.ItemsSource = toDoCollection;
-        
-    }
-
-    protected override async void OnAppearing()
-    {
-        base.OnAppearing();
-        await LoadDataAsync();
-    }
-
-    private async Task LoadDataAsync()
+    // Only one LoadDataAsync method, with a parameter to control pending filtering
+    private async Task LoadDataAsync(bool loadPendingOnly)
     {
         try
         {
             var httpClient = httpClientFactory.CreateClient();
-            var toDos = await httpClient.GetFromJsonAsync<List<ToDoDto>>(ApiBaseUrl + "list");
+            string endpoint = loadPendingOnly ? "list/pending" : "list";
+            var toDos = await httpClient.GetFromJsonAsync<List<ToDoDto>>(ApiBaseUrl + endpoint);
 
             toDoCollection.Clear();
             if (toDos != null)
             {
                 foreach (var toDo in toDos)
                 {
-                    
                     toDoCollection.Add(toDo);
                 }
             }
@@ -51,13 +39,30 @@ public partial class MainPage : ContentPage
         }
     }
 
+    // Call this from a button or switch event handler:
+    private async void OnTogglePendingClickedAsync(object sender, EventArgs e)
+    {
+        showPendingOnly = !showPendingOnly;
+        await LoadDataAsync(showPendingOnly);
+    }
+
+    public MainPage(IHttpClientFactory httpClientFactory)
+    {
+        InitializeComponent();
+        this.httpClientFactory = httpClientFactory;
+        ToDosView.ItemsSource = toDoCollection;
+    }
+
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+        await LoadDataAsync(showPendingOnly);
+    }
+
     private async void OnAddNewClickedAsync(object sender, EventArgs e)
     {
         await Shell.Current.GoToAsync("///AddToDoPage");
     }
-
-
-
 
     private async void OnDeleteClickedAsync(object sender, EventArgs e)
     {
@@ -68,7 +73,7 @@ public partial class MainPage : ContentPage
             var response = await httpClient.DeleteAsync(ApiBaseUrl + $"delete/{toDo.Id}");
 
             if (response.IsSuccessStatusCode)
-                await LoadDataAsync();
+                await LoadDataAsync(showPendingOnly);
             else
                 await DisplayAlert("Hiba", "Nem sikerült törölni a feladatot", "OK");
         }
@@ -84,6 +89,7 @@ public partial class MainPage : ContentPage
         var parameters = new Dictionary<string, object> { { "Id", toDo.Id } };
         await Shell.Current.GoToAsync("details", parameters);
     }
+
     private async void OnStatusChangedAsync(object sender, CheckedChangedEventArgs e)
     {
         var checkBox = (CheckBox)sender;
@@ -114,7 +120,7 @@ public partial class MainPage : ContentPage
                 if (altResponse.IsSuccessStatusCode)
                 {
                     // siker — frissítjük listát (biztonság kedvéért)
-                    await LoadDataAsync();
+                    await LoadDataAsync(showPendingOnly);
                 }
                 else
                 {
@@ -128,13 +134,13 @@ public partial class MainPage : ContentPage
 
                     // visszaállítjuk az eredeti értéket
                     toDo.IsReady = originalValue;
-                    await LoadDataAsync();
+                    await LoadDataAsync(showPendingOnly);
                 }
             }
             else
             {
                 // siker: opcionálisan újratöltjük a listát, hogy minden mező szinkron legyen
-                await LoadDataAsync();
+                await LoadDataAsync(showPendingOnly);
             }
         }
         catch (Exception ex)
@@ -144,7 +150,7 @@ public partial class MainPage : ContentPage
 
             // visszaállítjuk az eredeti értéket
             toDo.IsReady = originalValue;
-            await LoadDataAsync();
+            await LoadDataAsync(showPendingOnly);
         }
         finally
         {
@@ -162,5 +168,4 @@ public partial class MainPage : ContentPage
             catch { return string.Empty; }
         }
     }
-
 }

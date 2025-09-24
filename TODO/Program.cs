@@ -63,4 +63,9 @@ app.MapDelete("delete/{id:int}", async (int id, IToDoService service) =>
     return Results.Ok();
 });
 
+app.MapGet("list/pending", async (IToDoService service) =>
+{
+    return await service.ListPendingAsync();
+});
+
 app.Run();
