@@ -9,10 +9,14 @@
     <ScrollView>
         
         <VerticalStackLayout Padding="20" Spacing="20">
-            <Button Text="{Binding Source={x:Reference mainPage}, Path=showPendingOnly, Converter={StaticResource BoolToTextConverter}, ConverterParameter='Csak a teendők|Összes'}"
-        Clicked="OnTogglePendingClickedAsync"
-        x:Name="TogglePendingButton"
-        Margin="10"/>
+            <HorizontalStackLayout>
+                <Label Text="Nincs kész:" VerticalOptions="Center" />
+                <Switch IsToggled="false"
+                    x:Name="TogglePendingButton"
+                    Toggled="OnTogglePendingToggled"/>      
+
+            </HorizontalStackLayout>
+ 
 
             <Button x:Name="AddNew"
                     Text="Új létrehozása"
@@ -44,7 +48,7 @@
                     <Label Grid.Column="1" Text="Cím" FontAttributes="Bold" />
                     <Label Grid.Column="2" Text="Leírás" FontAttributes="Bold" />
                     <Label Grid.Column="3" Text="Határidő" FontAttributes="Bold" />
-                    <Label Grid.Column="4" Text="Státusz" FontAttributes="Bold" />
+                    <Label Grid.Column="4" Text="Kész" FontAttributes="Bold" />
                     <Label Grid.Column="5" Text=" " />
                     <Label Grid.Column="6" Text=" " />
                 </Grid>

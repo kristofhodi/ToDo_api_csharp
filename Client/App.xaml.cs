@@ -5,6 +5,7 @@
         public App()
         {
             Routing.RegisterRoute("details", typeof(DetailsPage));
+            Routing.RegisterRoute("AddToDoPage", typeof(AddToDoPage));
 
             InitializeComponent();
         }

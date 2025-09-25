@@ -8,14 +8,13 @@ namespace Client;
 
 public partial class MainPage : ContentPage
 {
+    
     private readonly IHttpClientFactory httpClientFactory;
     private ObservableCollection<ToDoDto> toDoCollection = new ObservableCollection<ToDoDto>();
 
-    // Csak localhost
     private const string ApiBaseUrl = "https://localhost:7241/";
     private bool showPendingOnly = false;
 
-    // Only one LoadDataAsync method, with a parameter to control pending filtering
     private async Task LoadDataAsync(bool loadPendingOnly)
     {
         try
@@ -38,13 +37,12 @@ public partial class MainPage : ContentPage
             await DisplayAlert("Hiba", "Nem sikerült betölteni az adatokat:\n" + ex.Message, "OK");
         }
     }
-
-    // Call this from a button or switch event handler:
-    private async void OnTogglePendingClickedAsync(object sender, EventArgs e)
+    private async void OnTogglePendingToggled(object sender, ToggledEventArgs e)
     {
-        showPendingOnly = !showPendingOnly;
+        showPendingOnly = e.Value; 
         await LoadDataAsync(showPendingOnly);
     }
+
 
     public MainPage(IHttpClientFactory httpClientFactory)
     {
@@ -61,7 +59,7 @@ public partial class MainPage : ContentPage
 
     private async void OnAddNewClickedAsync(object sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync("///AddToDoPage");
+        await Shell.Current.GoToAsync("AddToDoPage");
     }
 
     private async void OnDeleteClickedAsync(object sender, EventArgs e)
@@ -94,78 +92,40 @@ public partial class MainPage : ContentPage
     {
         var checkBox = (CheckBox)sender;
         var toDo = (ToDoDto)checkBox.BindingContext;
-        var originalValue = toDo.IsReady;
+        var originalValue = !e.Value;
 
-        // lock UI amíg dolgozunk
         checkBox.IsEnabled = false;
-
-        // optimisztikusan állítjuk be a modellben
-        toDo.IsReady = e.Value;
 
         try
         {
             var httpClient = httpClientFactory.CreateClient();
+            httpClient.Timeout = TimeSpan.FromSeconds(5);
 
-            // Próbáljuk elsőként a /update/{id} végpontot
-            var urlWithId = ApiBaseUrl + $"update/{toDo.Id}";
-            var response = await httpClient.PutAsJsonAsync(urlWithId, toDo);
+            var url = ApiBaseUrl + "update"; // csak /update van
+            var response = await httpClient.PutAsJsonAsync(url, toDo);
 
             if (!response.IsSuccessStatusCode)
             {
-                // ha nem sikerült, próbáljuk meg a /update végpontot (sok projekt ezt használja)
-                var urlNoId = ApiBaseUrl + "update";
-                var body = JsonSerializer.Serialize(toDo);
-                var altResponse = await httpClient.PutAsync(urlNoId, new StringContent(body, Encoding.UTF8, "application/json"));
+                var msg = await response.Content.ReadAsStringAsync();
+                await DisplayAlert("Hiba",
+                    $"Nem sikerült frissíteni a státuszt\n" +
+                    $"Kód: {(int)response.StatusCode} {response.ReasonPhrase}\n" +
+                    $"Válasz: {msg}",
+                    "OK");
 
-                if (altResponse.IsSuccessStatusCode)
-                {
-                    // siker — frissítjük listát (biztonság kedvéért)
-                    await LoadDataAsync(showPendingOnly);
-                }
-                else
-                {
-                    // mindkét próbálkozás hibára futott: olvassuk ki a szerverválaszt és mutassuk meg
-                    var primaryText = await SafeReadContentAsync(response);
-                    var altText = await SafeReadContentAsync(altResponse);
-
-                    await DisplayAlert("Hiba",
-                        $"Frissítés sikertelen.\nElső próbálkozás: {(int)response.StatusCode} {response.ReasonPhrase}\n{primaryText}\n\nMásodik próbálkozás: {(int)altResponse.StatusCode} {altResponse.ReasonPhrase}\n{altText}",
-                        "OK");
-
-                    // visszaállítjuk az eredeti értéket
-                    toDo.IsReady = originalValue;
-                    await LoadDataAsync(showPendingOnly);
-                }
-            }
-            else
-            {
-                // siker: opcionálisan újratöltjük a listát, hogy minden mező szinkron legyen
-                await LoadDataAsync(showPendingOnly);
+                toDo.IsReady = originalValue; // visszaállítás
             }
         }
         catch (Exception ex)
         {
-            // hálózati vagy egyéb kivétel
-            await DisplayAlert("Hiba", "Kivétel: " + ex.Message, "OK");
-
-            // visszaállítjuk az eredeti értéket
             toDo.IsReady = originalValue;
-            await LoadDataAsync(showPendingOnly);
+            await DisplayAlert("Hiba", "Kivétel: " + ex.Message, "OK");
         }
         finally
         {
             checkBox.IsEnabled = true;
         }
-
-        // segédfüggvény a tartalom kiolvasására (nem dob, ha üres)
-        static async Task<string> SafeReadContentAsync(HttpResponseMessage resp)
-        {
-            try
-            {
-                if (resp?.Content == null) return string.Empty;
-                return await resp.Content.ReadAsStringAsync();
-            }
-            catch { return string.Empty; }
-        }
     }
+
+
 }

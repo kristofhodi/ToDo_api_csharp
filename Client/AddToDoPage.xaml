@@ -10,7 +10,10 @@
             <Entry x:Name="TitleEntry" Placeholder="Cím" />
             <Editor x:Name="DescriptionEditor" Placeholder="Leírás" HeightRequest="100" />
             <DatePicker x:Name="DeadlinePicker" />
-            <Switch x:Name="IsReadySwitch" />
+            <HorizontalStackLayout>
+                <Label Text="Kész:" VerticalOptions="Center" />
+                <Switch x:Name="IsReadySwitch" />
+            </HorizontalStackLayout>
 
             <Button Text="Mentés" Clicked="OnSaveClickedAsync" />
             <Button Text="Mégse" Clicked="OnCancelClickedAsync" />
