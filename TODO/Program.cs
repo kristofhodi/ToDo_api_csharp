@@ -17,6 +17,18 @@ builder.Services.AddDbContext<ToDoDbContext>(options =>
 builder.Services.AddTransient<IToDoService, ToDoService>();
 
 var app = builder.Build();
+builder.Services.AddHttpClient();
+var allowSpecificOrigins = "_allowSpecificOrigins";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(allowSpecificOrigins,
+                      policy =>
+                      {
+                          policy.WithOrigins("*")
+                            .AllowAnyHeader()
+                            .AllowAnyMethod();
+                      });
+});
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ToDoDbContext>();
@@ -30,6 +42,8 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+
+app.UseCors(allowSpecificOrigins);
 app.UseHttpsRedirection();
 
 app.MapGet("get/{id:int}", async (int id, IToDoService service) =>
