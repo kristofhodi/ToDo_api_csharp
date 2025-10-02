@@ -5,14 +5,14 @@ import type { Todo } from "./types/todo.ts";
 import apiClient from "./apiClient";
 
 function ToDoPage() {
-  const [data, setData] = useState<Todo[]>([]);
+  const [todos, setTodos] = useState<Todo[]>([]);
 
   useEffect(() => {
     apiClient
       .get("/list")
       .then((response) => {
-        console.log("API data:", response.data); // <-- check data structure here
-        setData(response.data);
+        console.log("API data:", response.data);
+        setTodos(response.data);
       })
       .catch((error) => {
         if (error.response) {
@@ -38,12 +38,18 @@ function ToDoPage() {
             </tr>
           </thead>
           <tbody>
-            {data.map((sz) => (
-              <tr key={sz.id}> {/* Make sure _id exists */}
-                <td>{sz.id}</td>
-                <td>{sz.description}</td>
-                <td>{new Date(sz.deadline).toLocaleDateString()}</td>
-                <td>{sz.isReady ? "Ready" : "Not Ready"}</td>
+            {todos.map((todo) => (
+              <tr key={todo.id}>
+                <td>{todo.id}</td>
+                <td>{todo.description}</td>
+                <td
+                  className={
+                    new Date(todo.deadline) < new Date() ? "isRed" : ""
+                  }
+                >
+                  {new Date(todo.deadline).toLocaleDateString()}
+                </td>{" "}
+                <td>{todo.isReady ? "Ready" : "Not Ready"}</td>
               </tr>
             ))}
           </tbody>
